@@ -24,7 +24,7 @@ const Pagination = ({ itemsCount, currentPage, pageSize, onPageChange }) => {
   );
 };
 
-Pagination.prototype = {
+Pagination.propTypes = {
   itemsCount: PropTypes.number.isRequired,
   pageSize: PropTypes.number.isRequired,
   currentPage: PropTypes.number.isRequired,
