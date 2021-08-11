@@ -1,6 +1,12 @@
 import React, { Component } from "react";
 import Input from "./common/input";
+import Joi from "joi-browser";
 class LoginForm extends Component {
+  schema = {
+    username: Joi.string().required().label("Username"),
+    password: Joi.string().required().label("Password"),
+  };
+
   state = {
     account: { username: "", password: "" },
     errors: {},
@@ -12,13 +18,13 @@ class LoginForm extends Component {
     if (errors) return;
   };
   validate = () => {
+    const { error } = Joi.validate(this.state.account, this.schema, {
+      abortEarly: false,
+    });
+    if (!error) return null;
     const errors = {};
-    const { account } = this.state;
-    if (account.username.trim() === "")
-      errors.username = "Username is required.";
-    if (account.password.trim() === "")
-      errors.password = "Password is required.";
-    return Object.keys(errors).length === 0 ? null : errors;
+    for (let item of error.details) errors[item.path[0]] = item.message;
+    return errors;
   };
   handleChange = ({ currentTarget: input }) => {
     const account = { ...this.state.account };
@@ -30,13 +36,11 @@ class LoginForm extends Component {
     this.setState({ account, errors });
   };
 
-  validateProperty = (input) => {
-    if (input.name === "username") {
-      if (input.value.trim === "") return "Username is required.";
-    }
-    if (input.name === "password") {
-      if (input.value.trim === "") return "Password is required.";
-    }
+  validateProperty = ({ name, value }) => {
+    const obj = { [name]: value };
+    const schema = { [name]: this.schema[name] };
+    const { error } = Joi.validate(obj, schema);
+    return error ? error.details[0].message : null;
   };
   render() {
     const { account, errors } = this.state;
@@ -58,7 +62,9 @@ class LoginForm extends Component {
             onChange={this.handleChange}
             error={errors.password}
           />
-          <button className="btn btn-primary">Login</button>
+          <button disabled={this.validate()} className="btn btn-primary">
+            Login
+          </button>
         </form>
       </div>
     );
