@@ -4,7 +4,8 @@ function log(error) {
   console.error(error);
 }
 
-export default {
+const logger = {
   init,
   log,
 };
+export default logger;
